@@ -77,14 +77,14 @@ new #[Title('Tasks')] class extends Component {
     }
 }; ?>
 
-<div class="w-full max-w-2xl mx-auto p-4 md:p-8">
-    <div class="flex justify-start mb-8">
+<div class="w-full max-w-2xl mx-auto px-4 md:px-8 pt-6 flex flex-col flex-1 min-h-0 overflow-hidden">
+    <div class="flex justify-start mb-8 flex-shrink-0">
         <flux:button :href="route('tasks.create')" variant="primary" icon="plus" class="px-8 py-6 text-lg" wire:navigate>
             {{ __('Add a task') }}
         </flux:button>
     </div>
 
-    <x-tabs active="next_7_days" :tabs="[
+    <x-tabs active="next_7_days" class="flex-1 min-h-0" :tabs="[
         'today' => ['label' => __('Today'), 'icon' => 'sun', 'badge' => $todayTasks->count() + $overdueTasks->count()],
         'next_7_days' => ['label' => __('Next 7 days'), 'icon' => 'calendar-days', 'badge' => $next7DaysTasks->count() + $overdueTasks->count()],
         'later' => ['label' => __('Later'), 'icon' => 'clock', 'badge' => $laterTasks->count()],
@@ -130,7 +130,8 @@ new #[Title('Tasks')] class extends Component {
 
                 @if ($overdueTasks->isEmpty() && $next7DaysTasks->isEmpty())
                     <div class="p-8 text-center border border-dashed rounded-xl border-zinc-200 dark:border-zinc-700">
-                        <flux:text color="sky">{{ __('Nothing scheduled for the next 7 days.') }}</flux:text>
+                        <flux:text color="sky" class="mb-2">{{ __('Nothing scheduled for the next 7 days.') }}</flux:text>
+                        <flux:button variant="subtle" size="sm" :href="route('tasks.create')" wire:navigate>{{ __('Create one now') }}</flux:button>
                     </div>
                 @endif
 
@@ -151,7 +152,8 @@ new #[Title('Tasks')] class extends Component {
                     <x-task-row :task="$task" />
                 @empty
                     <div class="p-8 text-center border border-dashed rounded-xl border-zinc-200 dark:border-zinc-700">
-                        <flux:text color="sky">{{ __('No tasks scheduled for later.') }}</flux:text>
+                        <flux:text color="sky" class="mb-2">{{ __('No tasks scheduled for later.') }}</flux:text>
+                        <flux:button variant="subtle" size="sm" :href="route('tasks.create')" wire:navigate>{{ __('Create one now') }}</flux:button>
                     </div>
                 @endforelse
 
@@ -172,7 +174,8 @@ new #[Title('Tasks')] class extends Component {
                     <x-task-row :task="$task" />
                 @empty
                     <div class="p-8 text-center border border-dashed rounded-xl border-zinc-200 dark:border-zinc-700">
-                        <flux:text color="sky">{{ __('No tasks in your Someday list.') }}</flux:text>
+                        <flux:text color="sky" class="mb-2">{{ __('No tasks in your Someday list.') }}</flux:text>
+                        <flux:button variant="subtle" size="sm" :href="route('tasks.create')" wire:navigate>{{ __('Create one now') }}</flux:button>
                     </div>
                 @endforelse
             </div>

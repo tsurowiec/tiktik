@@ -4,8 +4,8 @@
     $active = $active ?? array_key_first($tabs);
 @endphp
 
-<div x-data="{ activeTab: '{{ $active }}' }" {{ $attributes->class('w-full') }}>
-    <div class="flex border-b border-zinc-200 dark:border-zinc-700 mb-6 overflow-x-auto no-scrollbar">
+<div x-data="{ activeTab: '{{ $active }}' }" {{ $attributes->class('w-full flex flex-col') }}>
+    <div class="flex-shrink-0 flex border-b border-zinc-200 dark:border-zinc-700 mb-6 overflow-x-auto no-scrollbar">
         <div class="flex w-full justify-between">
             @foreach ($tabs as $name => $tab)
                 @php
@@ -47,7 +47,7 @@
         </div>
     </div>
 
-    <div class="relative">
+    <div class="flex-1 overflow-y-auto min-h-0">
         @foreach ($tabs as $name => $tab)
             @php $label = is_array($tab) ? $tab['label'] : $tab; @endphp
             <div

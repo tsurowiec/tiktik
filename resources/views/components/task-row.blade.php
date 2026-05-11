@@ -45,7 +45,7 @@
         <div class="flex items-center gap-3 flex-1 min-w-0">
             <flux:checkbox wire:click="completeTask({{ $task->id }})"/>
             <div class="flex-1 min-w-0">
-                <flux:text class="{{ $overdue ? 'text-red-600 dark:text-red-400' : '' }}">
+                <flux:text class="{{ $overdue ? 'text-red-600 dark:text-red-400' : 'text-zinc-900' }}">
                     <a href="{{ route('tasks.show', $task) }}" wire:navigate class="no-underline text-inherit">{{ $task->title }}</a>
                 </flux:text>
                 <div class="flex items-center gap-2 w-full">

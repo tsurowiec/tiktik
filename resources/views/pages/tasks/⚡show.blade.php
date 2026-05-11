@@ -46,7 +46,7 @@ new #[Title('Task')] class extends Component {
         @if ($task->due_date)
             <div>
                 <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500 mb-1">{{ __('Due date') }}</flux:text>
-                <flux:text>{{ $task->due_date->format('j F Y') }}</flux:text>
+                <flux:text class="text-zinc-900">{{ $task->due_date->format('j F Y') }}</flux:text>
             </div>
         @endif
 
@@ -60,14 +60,14 @@ new #[Title('Task')] class extends Component {
         @if ($task->description)
             <div>
                 <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500 mb-1">{{ __('Description') }}</flux:text>
-                <flux:text class="whitespace-pre-wrap">{{ $task->description }}</flux:text>
+                <flux:text class="whitespace-pre-wrap text-zinc-900">{{ $task->description }}</flux:text>
             </div>
         @endif
 
         @if ($task->completed && $task->completed_date)
             <div>
                 <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500 mb-1">{{ __('Completed on') }}</flux:text>
-                <flux:text>{{ $task->completed_date->format('j F Y') }}</flux:text>
+                <flux:text class="text-zinc-900">{{ $task->completed_date->format('j F Y') }}</flux:text>
             </div>
         @endif
     </div>
