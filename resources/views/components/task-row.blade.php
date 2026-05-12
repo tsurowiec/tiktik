@@ -22,7 +22,7 @@
         <flux:checkbox checked wire:click="revertTask({{ $task->id }})"/>
         <div class="flex-1 min-w-0">
             <flux:text class="line-through">
-                <a href="{{ route('tasks.show', $task) }}" wire:navigate class="no-underline text-inherit">{{ $task->title }}</a>
+                <a href="{{ route('tasks.show', $task) }}" wire:navigate class="no-underline text-inherit">{{ $task->shortTitle() }}</a>
             </flux:text>
             @if ($task->completed_date)
                 <div class="flex items-center gap-2 w-full">
@@ -46,13 +46,18 @@
             <flux:checkbox wire:click="completeTask({{ $task->id }})"/>
             <div class="flex-1 min-w-0">
                 <flux:text class="{{ $overdue ? 'text-red-600 dark:text-red-400' : 'text-zinc-900' }}">
-                    <a href="{{ route('tasks.show', $task) }}" wire:navigate class="no-underline text-inherit">{{ $task->title }}</a>
+                    <a href="{{ route('tasks.show', $task) }}" wire:navigate class="no-underline text-inherit">{{ $task->shortTitle() }}</a>
                 </flux:text>
                 <div class="flex items-center gap-2 w-full">
                     @if ($task->due_date)
-                        <flux:text size="sm" class="{{ $overdue ? 'text-red-400 dark:text-red-500' : 'text-zinc-400 dark:text-zinc-500' }}">{{ $formatDate($task->due_date) }}</flux:text>
+                        <flux:text size="sm" class="{{ $overdue ? 'text-red-400 dark:text-red-500' : 'text-zinc-400 dark:text-zinc-500' }}">
+                            {{ $formatDate($task->due_date) }}@if ($task->recurring()), then {{ $task->repeatPhrase() }} @endif
+                        </flux:text>
                     @endif
                     <span class="ml-auto flex items-center gap-1">
+                        @if ($task->recurring())
+                            <flux:icon name="arrow-path" class="size-3 text-zinc-400 dark:text-zinc-500" />
+                        @endif
                         @if ($task->link)
                             <flux:icon name="link" class="size-3 text-zinc-400 dark:text-zinc-500" />
                         @endif

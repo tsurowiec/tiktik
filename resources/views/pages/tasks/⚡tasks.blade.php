@@ -5,23 +5,18 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 use App\Models\Task;
 
-new #[Title('Tasks')] class extends Component {
+new #[Title('Tasks')]
+class extends Component {
     public function completeTask(int $taskId): void
     {
         $task = Auth::user()->tasks()->findOrFail($taskId);
-        $task->update([
-            'completed' => true,
-            'completed_date' => now()->toDateString(),
-        ]);
+        $task->complete();
     }
 
     public function revertTask(int $taskId): void
     {
         $task = Auth::user()->tasks()->findOrFail($taskId);
-        $task->update([
-            'completed' => false,
-            'completed_date' => null,
-        ]);
+        $task->revert();
     }
 
     public function with(): array
@@ -79,13 +74,14 @@ new #[Title('Tasks')] class extends Component {
 
 <div class="w-full max-w-2xl mx-auto px-4 md:px-8 pt-6 flex flex-col flex-1 min-h-0 overflow-hidden">
     <div class="flex justify-start mb-8 flex-shrink-0">
-        <flux:button :href="route('tasks.create')" variant="primary" icon="plus" class="px-8 py-6 text-lg" wire:navigate>
+        <flux:button :href="route('tasks.create')" variant="primary" icon="plus" class="px-8 py-6 text-lg"
+                     wire:navigate>
             {{ __('Add a task') }}
         </flux:button>
     </div>
 
     <x-tabs active="next_7_days" class="flex-1 min-h-0" :tabs="[
-        'today' => ['label' => __('Today'), 'icon' => 'sun', 'badge' => $todayTasks->count() + $overdueTasks->count()],
+        'today' => ['label' => __('Today'), 'icon' => 'sun', 'badge' => $todayTasks->count() + $overdueTasks->count(), 'overdue' => (bool) $overdueTasks->count()],
         'next_7_days' => ['label' => __('Next 7 days'), 'icon' => 'calendar-days', 'badge' => $next7DaysTasks->count() + $overdueTasks->count()],
         'later' => ['label' => __('Later'), 'icon' => 'clock', 'badge' => $laterTasks->count()],
         'someday' => ['label' => __('Someday'), 'icon' => 'sparkles', 'badge' => $somedayTasks->count()],
@@ -93,25 +89,27 @@ new #[Title('Tasks')] class extends Component {
         <x-slot:today>
             <div class="flex flex-col">
                 @foreach ($overdueTasks as $task)
-                    <x-task-row :task="$task" />
+                    <x-task-row :task="$task"/>
                 @endforeach
 
                 @foreach ($todayTasks as $task)
-                    <x-task-row :task="$task" />
+                    <x-task-row :task="$task"/>
                 @endforeach
 
                 @if ($overdueTasks->isEmpty() && $todayTasks->isEmpty())
                     <div class="p-8 text-center border border-dashed rounded-xl border-zinc-200 dark:border-zinc-700">
                         <flux:text color="sky" class="mb-2">{{ __('No tasks for today!') }}</flux:text>
-                        <flux:button variant="subtle" size="sm" :href="route('tasks.create')" wire:navigate>{{ __('Create one now') }}</flux:button>
+                        <flux:button variant="subtle" size="sm" :href="route('tasks.create')"
+                                     wire:navigate>{{ __('Create one now') }}</flux:button>
                     </div>
                 @endif
 
                 @if ($completedTodayTasks->isNotEmpty())
                     <div class="mt-6">
-                        <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500 py-4 px-2">{{ __('Completed') }}</flux:text>
+                        <flux:text size="sm"
+                                   class="text-zinc-400 dark:text-zinc-500 py-4 px-2">{{ __('Completed') }}</flux:text>
                         @foreach ($completedTodayTasks as $task)
-                            <x-task-row :task="$task" />
+                            <x-task-row :task="$task"/>
                         @endforeach
                     </div>
                 @endif
@@ -121,25 +119,28 @@ new #[Title('Tasks')] class extends Component {
         <x-slot:next_7_days>
             <div class="flex flex-col">
                 @foreach ($overdueTasks as $task)
-                    <x-task-row :task="$task" />
+                    <x-task-row :task="$task"/>
                 @endforeach
 
                 @foreach ($next7DaysTasks as $task)
-                    <x-task-row :task="$task" />
+                    <x-task-row :task="$task"/>
                 @endforeach
 
                 @if ($overdueTasks->isEmpty() && $next7DaysTasks->isEmpty())
                     <div class="p-8 text-center border border-dashed rounded-xl border-zinc-200 dark:border-zinc-700">
-                        <flux:text color="sky" class="mb-2">{{ __('Nothing scheduled for the next 7 days.') }}</flux:text>
-                        <flux:button variant="subtle" size="sm" :href="route('tasks.create')" wire:navigate>{{ __('Create one now') }}</flux:button>
+                        <flux:text color="sky"
+                                   class="mb-2">{{ __('Nothing scheduled for the next 7 days.') }}</flux:text>
+                        <flux:button variant="subtle" size="sm" :href="route('tasks.create')"
+                                     wire:navigate>{{ __('Create one now') }}</flux:button>
                     </div>
                 @endif
 
                 @if ($completedNext7DaysTasks->isNotEmpty())
                     <div class="mt-6">
-                        <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500 mb-2 px-2">{{ __('Completed') }}</flux:text>
+                        <flux:text size="sm"
+                                   class="text-zinc-400 dark:text-zinc-500 mb-2 px-2">{{ __('Completed') }}</flux:text>
                         @foreach ($completedNext7DaysTasks as $task)
-                            <x-task-row :task="$task" />
+                            <x-task-row :task="$task"/>
                         @endforeach
                     </div>
                 @endif
@@ -149,19 +150,21 @@ new #[Title('Tasks')] class extends Component {
         <x-slot:later>
             <div class="flex flex-col">
                 @forelse ($laterTasks as $task)
-                    <x-task-row :task="$task" />
+                    <x-task-row :task="$task"/>
                 @empty
                     <div class="p-8 text-center border border-dashed rounded-xl border-zinc-200 dark:border-zinc-700">
                         <flux:text color="sky" class="mb-2">{{ __('No tasks scheduled for later.') }}</flux:text>
-                        <flux:button variant="subtle" size="sm" :href="route('tasks.create')" wire:navigate>{{ __('Create one now') }}</flux:button>
+                        <flux:button variant="subtle" size="sm" :href="route('tasks.create')"
+                                     wire:navigate>{{ __('Create one now') }}</flux:button>
                     </div>
                 @endforelse
 
                 @if ($completedLaterTasks->isNotEmpty())
                     <div class="mt-6">
-                        <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500 m-2 px-2">{{ __('Completed') }}</flux:text>
+                        <flux:text size="sm"
+                                   class="text-zinc-400 dark:text-zinc-500 m-2 px-2">{{ __('Completed') }}</flux:text>
                         @foreach ($completedLaterTasks as $task)
-                            <x-task-row :task="$task" />
+                            <x-task-row :task="$task"/>
                         @endforeach
                     </div>
                 @endif
@@ -171,11 +174,12 @@ new #[Title('Tasks')] class extends Component {
         <x-slot:someday>
             <div class="flex flex-col">
                 @forelse ($somedayTasks as $task)
-                    <x-task-row :task="$task" />
+                    <x-task-row :task="$task"/>
                 @empty
                     <div class="p-8 text-center border border-dashed rounded-xl border-zinc-200 dark:border-zinc-700">
                         <flux:text color="sky" class="mb-2">{{ __('No tasks in your Someday list.') }}</flux:text>
-                        <flux:button variant="subtle" size="sm" :href="route('tasks.create')" wire:navigate>{{ __('Create one now') }}</flux:button>
+                        <flux:button variant="subtle" size="sm" :href="route('tasks.create')"
+                                     wire:navigate>{{ __('Create one now') }}</flux:button>
                     </div>
                 @endforelse
             </div>

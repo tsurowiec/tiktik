@@ -5,7 +5,8 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Task')] class extends Component {
+new #[Title('Task')]
+class extends Component {
     public Task $task;
 
     public function mount(Task $task)
@@ -15,18 +16,12 @@ new #[Title('Task')] class extends Component {
 
     public function completeTask(): void
     {
-        $this->task->update([
-            'completed' => true,
-            'completed_date' => now()->toDateString(),
-        ]);
+        $this->task->complete();
     }
 
     public function revertTask(): void
     {
-        $this->task->update([
-            'completed' => false,
-            'completed_date' => null,
-        ]);
+        $this->task->revert();
     }
 }; ?>
 
@@ -37,9 +32,10 @@ new #[Title('Task')] class extends Component {
                 :checked="$task->completed"
                 wire:click="{{ $task->completed ? 'revertTask' : 'completeTask' }}"
             />
-            <flux:heading size="xl" class="{{ $task->completed ? 'line-through opacity-50' : '' }}">{{ $task->title }}</flux:heading>
+            <flux:heading size="xl"
+                          class="{{ $task->completed ? 'line-through opacity-50' : '' }}">{{ $task->shortTitle() }}</flux:heading>
         </div>
-        <flux:button variant="subtle" size="sm" icon="pencil" :href="route('tasks.edit', $task)" wire:navigate />
+        <flux:button variant="subtle" size="sm" icon="pencil" :href="route('tasks.edit', $task)" wire:navigate/>
     </div>
 
     <div class="space-y-4">
@@ -50,10 +46,18 @@ new #[Title('Task')] class extends Component {
             </div>
         @endif
 
+        @if ($task->recurring())
+            <div>
+                <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500 mb-1">{{ __('Repeat') }}</flux:text>
+                <flux:text class="text-zinc-900">{{ $task->repeatPhrase() }}</flux:text>
+            </div>
+        @endif
+
         @if ($task->link)
             <div>
                 <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500 mb-1">{{ __('Link') }}</flux:text>
-                <a href="{{ $task->link }}" target="_blank" rel="noopener noreferrer" class="text-indigo-600 hover:text-indigo-800 break-all">{{ $task->link }}</a>
+                <a href="{{ $task->link }}" target="_blank" rel="noopener noreferrer"
+                   class="text-indigo-600 hover:text-indigo-800 break-all">{{ $task->link }}</a>
             </div>
         @endif
 

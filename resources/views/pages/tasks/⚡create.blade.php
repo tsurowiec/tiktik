@@ -23,6 +23,7 @@ new #[Title('Create Task')] class extends Component {
         Auth::user()->tasks()->create([
             'title' => $this->title,
             'due_date' => $this->due_date ?: null,
+            'original_due_date' => $this->due_date ?: null,
             'link' => $this->link ?: null,
             'description' => $this->description ?: null,
         ]);

@@ -1,18 +1,18 @@
-@props(['tabs', 'active' => null])
+@props(['tabs', 'active' => null, 'overdue' => false])
 
 @php
     $active = $active ?? array_key_first($tabs);
 @endphp
 
 <div x-data="{ activeTab: '{{ $active }}' }" {{ $attributes->class('w-full flex flex-col') }}>
-    <div class="flex-shrink-0 flex border-b border-zinc-200 dark:border-zinc-700 mb-6 overflow-x-auto no-scrollbar">
+    <div class="shrink-0 flex border-b border-zinc-200 dark:border-zinc-700 mb-6 overflow-x-auto no-scrollbar">
         <div class="flex w-full justify-between">
             @foreach ($tabs as $name => $tab)
                 @php
                     $label = is_array($tab) ? $tab['label'] : $tab;
                     $icon = is_array($tab) ? ($tab['icon'] ?? null) : null;
                     $badge = is_array($tab) ? ($tab['badge'] ?? null) : null;
-                    $badgeColor = is_array($tab) ? ($tab['badgeColor'] ?? 'default') : 'default';
+                    $tabOverdue = is_array($tab) && (($tab['overdue'] ?? false));
                 @endphp
                 <button
                     @click="activeTab = '{{ $name }}'"
@@ -30,8 +30,8 @@
 
                     @if ($badge !== null)
                         <span
-                            @if($badgeColor === 'red')
-                                class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-[10px] font-bold rounded-full transition-colors duration-200 bg-red-500 text-white"
+                            @if($tabOverdue)
+                                class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 text-[10px] font-bold rounded-full transition-colors duration-200 bg-red-700 text-white"
                             @else
                                 :class="activeTab === '{{ $name }}'
                                     ? 'bg-indigo-900 text-white dark:bg-zinc-100 dark:text-zinc-800'
