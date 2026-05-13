@@ -6,23 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::table('tasks', function (Blueprint $table) {
-            $table->integer('iteration')->default(1);
+            $table->boolean('countdown')->default(false);
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::table('tasks', function (Blueprint $table) {
-            $table->dropColumn('iteration');
+            $table->dropColumn('countdown');
         });
     }
 };

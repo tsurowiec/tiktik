@@ -5,40 +5,46 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 
-new #[Title('Create Task')] class extends Component {
+new #[Title('Create Countdown')] class extends Component {
     public string $title = '';
-    public ?string $due_date = null;
+    public ?string $base_date = null;
+    public ?string $countdown_date = null;
     public ?string $link = null;
     public ?string $description = null;
+    public string $icon = 'cake';
 
     public function save()
     {
         $this->validate([
             'title' => ['required', 'string', 'min:5'],
-            'due_date' => ['nullable', 'date', 'after_or_equal:today'],
+            'countdown_date' => ['date', 'after_or_equal:today'],
+            'base_date' => ['nullable', 'date'],
             'link' => ['nullable', 'url'],
             'description' => ['nullable', 'string'],
+            'icon' => ['required', 'string'],
         ]);
 
         Auth::user()->tasks()->create([
             'title' => $this->title,
-            'due_date' => $this->due_date ?: null,
-            'original_due_date' => $this->due_date ?: null,
+            'countdown' => true,
+            'due_date' => $this->countdown_date ?: null,
+            'original_due_date' => $this->base_date ?: null,
             'link' => $this->link ?: null,
             'description' => $this->description ?: null,
+            'icon' => $this->icon,
         ]);
 
-        return redirect()->route('tasks');
+        return redirect()->route('countdowns');
     }
 }; ?>
 <div class="w-full max-w-2xl mx-auto pt-6 flex flex-col flex-1 min-h-0 overflow-hidden">
     <div class="flex-shrink-0 px-4 md:px-8">
-        <flux:heading size="xl" class="mb-6">{{ __('Create Task') }}</flux:heading>
+        <flux:heading size="xl" class="mb-6">{{ __('Create Countdown') }}</flux:heading>
     </div>
 
     <div class="flex-1 overflow-y-auto min-h-0 px-4 md:px-8 pb-8">
         <form wire:submit="save" class="space-y-6">
-            <flux:input wire:model="title" :label="__('Title')" placeholder="{{ __('Task title...') }}" required />
+            <flux:input wire:model="title" :label="__('Title')" placeholder="{{ __('Countdown title...') }}" required />
 
             <div wire:ignore x-data="{
                 init() {
@@ -50,8 +56,27 @@ new #[Title('Create Task')] class extends Component {
                     });
                 }
             }">
-                <flux:input wire:model="due_date" type="text" :label="__('Due Date')" placeholder="yyyy-mm-dd" />
+                <flux:input wire:model="countdown_date" type="text" :label="__('Countdown Until')" placeholder="yyyy-mm-dd" />
             </div>
+
+            <div wire:ignore x-data="{
+                init() {
+                    flatpickr(this.$el.querySelector('input'), {
+                        dateFormat: 'Y-m-d',
+                        defaultDate: $wire.due_date || '',
+                        disableMobile: true,
+                        onChange: (dates, str) => { $wire.due_date = str }
+                    });
+                }
+            }">
+                <flux:input wire:model="base_date" type="text" :label="__('Base Date')" placeholder="yyyy-mm-dd" />
+            </div>
+
+            <flux:select wire:model="icon" :label="__('Icon')">
+                @foreach (Task::icons() as $icon)
+                    <flux:select.option :value="$icon" :icon="$icon">{{ str($icon)->replace('-', ' ')->title() }}</flux:select.option>
+                @endforeach
+            </flux:select>
 
             <flux:input wire:model="link" :label="__('Link')" placeholder="https://..." type="url" />
 

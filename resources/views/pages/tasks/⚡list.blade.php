@@ -23,7 +23,7 @@ class extends Component {
     {
         $user = Auth::user();
         $today = now()->startOfDay();
-        $nextWeek = now()->addDays(7)->endOfDay();
+        $in2Weeks = now()->addDays(13)->endOfDay();
 
         return [
             'overdueTasks' => $user->tasks()
@@ -36,15 +36,15 @@ class extends Component {
                 ->whereDate('due_date', $today)
                 ->orderBy('due_date')
                 ->get(),
-            'next7DaysTasks' => $user->tasks()
+            'fortnightTasks' => $user->tasks()
                 ->where('completed', false)
                 ->where('due_date', '>=', $today)
-                ->where('due_date', '<=', $nextWeek)
+                ->where('due_date', '<=', $in2Weeks)
                 ->orderBy('due_date')
                 ->get(),
             'laterTasks' => $user->tasks()
                 ->where('completed', false)
-                ->where('due_date', '>', $nextWeek)
+                ->where('due_date', '>', $in2Weeks)
                 ->orderBy('due_date')
                 ->get(),
             'somedayTasks' => $user->tasks()
@@ -57,15 +57,15 @@ class extends Component {
                 ->whereDate('completed_date', $today)
                 ->orderBy('due_date')
                 ->get(),
-            'completedNext7DaysTasks' => $user->tasks()
+            'completedFortnightTasks' => $user->tasks()
                 ->where('completed', true)
                 ->where('completed_date', '>=', $today)
-                ->where('completed_date', '<=', $nextWeek)
+                ->where('completed_date', '<=', $in2Weeks)
                 ->orderBy('due_date')
                 ->get(),
             'completedLaterTasks' => $user->tasks()
                 ->where('completed', true)
-                ->where('completed_date', '>', $nextWeek)
+                ->where('completed_date', '>', $in2Weeks)
                 ->orderBy('due_date')
                 ->get(),
         ];
@@ -80,9 +80,9 @@ class extends Component {
         </flux:button>
     </div>
 
-    <x-tabs active="next_7_days" class="flex-1 min-h-0" :tabs="[
+    <x-tabs active="fortnight" class="flex-1 min-h-0" :tabs="[
         'today' => ['label' => __('Today'), 'icon' => 'sun', 'badge' => $todayTasks->count() + $overdueTasks->count(), 'overdue' => (bool) $overdueTasks->count()],
-        'next_7_days' => ['label' => __('Next 7 days'), 'icon' => 'calendar-days', 'badge' => $next7DaysTasks->count() + $overdueTasks->count()],
+        'fortnight' => ['label' => __('Fortnight'), 'icon' => 'calendar-days', 'badge' => $fortnightTasks->count() + $overdueTasks->count()],
         'later' => ['label' => __('Later'), 'icon' => 'clock', 'badge' => $laterTasks->count()],
         'someday' => ['label' => __('Someday'), 'icon' => 'sparkles', 'badge' => $somedayTasks->count()],
     ]">
@@ -116,36 +116,36 @@ class extends Component {
             </div>
         </x-slot:today>
 
-        <x-slot:next_7_days>
+        <x-slot:fortnight>
             <div class="flex flex-col">
                 @foreach ($overdueTasks as $task)
                     <x-task-row :task="$task"/>
                 @endforeach
 
-                @foreach ($next7DaysTasks as $task)
+                @foreach ($fortnightTasks as $task)
                     <x-task-row :task="$task"/>
                 @endforeach
 
-                @if ($overdueTasks->isEmpty() && $next7DaysTasks->isEmpty())
+                @if ($overdueTasks->isEmpty() && $fortnightTasks->isEmpty())
                     <div class="p-8 text-center border border-dashed rounded-xl border-zinc-200 dark:border-zinc-700">
                         <flux:text color="sky"
-                                   class="mb-2">{{ __('Nothing scheduled for the next 7 days.') }}</flux:text>
+                                   class="mb-2">{{ __('Nothing scheduled for the next 14 days.') }}</flux:text>
                         <flux:button variant="subtle" size="sm" :href="route('tasks.create')"
                                      wire:navigate>{{ __('Create one now') }}</flux:button>
                     </div>
                 @endif
 
-                @if ($completedNext7DaysTasks->isNotEmpty())
+                @if ($completedFortnightTasks->isNotEmpty())
                     <div class="mt-6">
                         <flux:text size="sm"
                                    class="text-zinc-400 dark:text-zinc-500 mb-2 px-2">{{ __('Completed') }}</flux:text>
-                        @foreach ($completedNext7DaysTasks as $task)
+                        @foreach ($completedFortnightTasks as $task)
                             <x-task-row :task="$task"/>
                         @endforeach
                     </div>
                 @endif
             </div>
-        </x-slot:next_7_days>
+        </x-slot:fortnight>
 
         <x-slot:later>
             <div class="flex flex-col">

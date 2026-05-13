@@ -11,8 +11,11 @@
                 <x-app-logo href="{{ route('tasks') }}" wire:navigate />
 
                 <flux:navbar class="-mb-px max-lg:hidden">
-                    <flux:navbar.item icon="check-circle" :href="route('tasks')" :current="request()->routeIs('tasks')" wire:navigate>
+                    <flux:navbar.item icon="check-circle" :href="route('tasks')" :current="Str::startsWith(request()->route()?->getName(), 'tasks')" wire:navigate>
                         {{ __('Tasks') }}
+                    </flux:navbar.item>
+                    <flux:navbar.item icon="calendar" :href="route('countdowns')" :current="Str::startsWith(request()->route()?->getName(), 'countdowns')" wire:navigate>
+                        {{ __('Countdowns') }}
                     </flux:navbar.item>
                 </flux:navbar>
 
@@ -29,8 +32,11 @@
             </flux:sidebar.header>
 
             <flux:sidebar.nav>
-                <flux:sidebar.item icon="check-circle" :href="route('tasks')" :current="request()->routeIs('tasks')" wire:navigate>
+                <flux:sidebar.item icon="check-circle" :href="route('tasks')" :current="Str::startsWith(request()->route()?->getName(), 'tasks')" wire:navigate>
                     {{ __('Tasks') }}
+                </flux:sidebar.item>
+                <flux:sidebar.item icon="check-circle" :href="route('countdowns')" :current="Str::startsWith(request()->route()?->getName(), 'countdowns')" wire:navigate>
+                    {{ __('Countdowns') }}
                 </flux:sidebar.item>
             </flux:sidebar.nav>
         </flux:sidebar>

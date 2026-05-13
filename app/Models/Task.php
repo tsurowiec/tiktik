@@ -6,6 +6,7 @@ use DateInterval;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Carbon;
 
 class Task extends Model
 {
@@ -19,8 +20,10 @@ class Task extends Model
         'title',
         'original_due_date',
         'due_date',
+        'countdown',
         'link',
         'description',
+        'icon',
     ];
 
     /**
@@ -118,6 +121,68 @@ class Task extends Model
         );
     }
 
+    public function countdownPhrase(): string
+    {
+        $diff = (int) floor(Carbon::now()->startOfDay()->diffInDays($this->due_date));
+
+        return sprintf('in %d day%s', $diff, $diff === 1 ? '' : 's');
+    }
+
+    public function countdownColor(): string
+    {
+        $colors = [
+            '#E67E22', // orange
+            '#3498DB', // blue
+            '#E74C3C', // red
+            '#27AE60', // green
+
+            '#9B59B6', // violet
+            '#F1C40F', // yellow
+            '#D33682', // pink
+            '#1ABC9C', // turquoise
+
+            '#8E6E53', // brown
+            '#607D8B', // blue gray
+            '#7CB342', // lime green
+            '#3F51B5', // indigo
+
+            '#C0392B', // dark red
+            '#8E44AD', // purple
+            '#16A085', // teal
+            '#D35400', // dark orange
+        ];
+
+        return $colors[hexdec(substr(md5($this->title), 0, 1))];
+    }
+
+    public static function icons(): array
+    {
+        return [
+            'academic-cap',
+            'archive-box',
+            'banknotes',
+            'bell',
+            'briefcase',
+            'cake',
+            'calendar',
+            'camera',
+            'face-smile',
+            'film',
+            'flag',
+            'gift',
+            'globe-europe-africa',
+            'key',
+            'light-bulb',
+            'sparkles',
+            'star',
+            'sun',
+            'ticket',
+            'trophy',
+            'user-group',
+            'wrench',
+        ];
+    }
+
     private function parseEveryExpression(): ?array
     {
         if (! preg_match('/@P(\d+)([DWMY])\b/i', $this->title, $matches)) {
@@ -144,7 +209,7 @@ class Task extends Model
         ];
     }
 
-    public function ordinal(int $number): string
+    private function ordinal(int $number): string
     {
         $suffixes = ['th', 'st', 'nd', 'rd'];
         if (($number % 100) >= 11 && ($number % 100) <= 13) {

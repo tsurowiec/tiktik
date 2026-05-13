@@ -17,7 +17,22 @@
     };
 @endphp
 
-@if ($task->completed)
+@if ($task->countdown)
+    <div wire:key="pending-{{ $task->id }}"
+         class="group flex items-center justify-between gap-3 p-2 rounded-lg transition-colors {{ $overdue ? 'hover:bg-red-50 dark:hover:bg-red-900/20' : 'hover:bg-indigo-100 dark:hover:bg-zinc-800/50' }}">
+        <div class="flex items-center gap-3 flex-1 min-w-0">
+            <flux:icon :name="$task->icon ?: 'cake'" class="size-7"  style="color: {{ $task->countdownColor() }}"/>
+            <div class="flex justify-between w-full">
+                <flux:text class="font-bold" style="color: {{ $task->countdownColor() }}">
+                    <a href="{{ route('countdowns.show', $task) }}" wire:navigate class="no-underline text-inherit">{{ $task->shortTitle() }}</a>
+                </flux:text>
+                <flux:text class="text-zinc-900">
+                    <a href="{{ route('countdowns.show', $task) }}" wire:navigate class="no-underline text-inherit">{{ $task->countdownPhrase() }}</a>
+                </flux:text>
+            </div>
+        </div>
+    </div>
+@elseif ($task->completed)
     <div wire:key="completed-{{ $task->id }}" class="flex items-center gap-3 p-2 rounded-lg opacity-50">
         <flux:checkbox checked wire:click="revertTask({{ $task->id }})"/>
         <div class="flex-1 min-w-0">
@@ -56,6 +71,7 @@
                     @endif
                     <span class="ml-auto flex items-center gap-1">
                         @if ($task->recurring())
+                            <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500">{{ $task->iteration }}/∞</flux:text>
                             <flux:icon name="arrow-path" class="size-3 text-zinc-400 dark:text-zinc-500" />
                         @endif
                         @if ($task->link)
