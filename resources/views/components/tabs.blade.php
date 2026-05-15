@@ -58,7 +58,6 @@
                 x-transition:enter-end="opacity-100 translate-y-0"
                 class="focus:outline-none"
             >
-                <flux:heading size="lg" class="mb-4">{{ $label }}</flux:heading>
                 {{ ${$name} }}
             </div>
         @endforeach

@@ -25,18 +25,27 @@ class extends Component {
         $today = now()->startOfDay();
         $in10Days = now()->addDays(9)->endOfDay();
 
+        $next10DaysItems = $user->tasks()
+            ->where('completed', false)
+            ->where('due_date', '>=', $today)
+            ->where('due_date', '<=', $in10Days)
+            ->orderBy('due_date')
+            ->get();
+
+        $next10DaysGrouped = $next10DaysItems->groupBy(function ($task) use ($today) {
+            if ($task->due_date->isSameDay($today)) return 'Today';
+            if ($task->due_date->isSameDay($today->copy()->addDay())) return 'Tomorrow';
+            return $task->due_date->format('j M');
+        });
+
         return [
             'overdueTasks' => $user->tasks()
                 ->where('completed', false)
                 ->where('due_date', '<', $today)
                 ->orderBy('due_date')
                 ->get(),
-            'next10DaysTasks' => $user->tasks()
-                ->where('completed', false)
-                ->where('due_date', '>=', $today)
-                ->where('due_date', '<=', $in10Days)
-                ->orderBy('due_date')
-                ->get(),
+            'next10DaysTasks' => $next10DaysItems,
+            'next10DaysGrouped' => $next10DaysGrouped,
             'laterTasks' => $user->tasks()
                 ->where('completed', false)
                 ->where('due_date', '>', $in10Days)
@@ -75,19 +84,25 @@ class extends Component {
     </div>
 
     <x-tabs active="next10Days" class="flex-1 min-h-0" :tabs="[
-        'next10Days' => ['label' => __('Next10Days'), 'icon' => 'calendar-days', 'badge' => $next10DaysTasks->count() + $overdueTasks->count()],
-        'later' => ['label' => __('Later'), 'icon' => 'clock', 'badge' => $laterTasks->count()],
+        'next10Days' => ['label' => __('Next 10 Days'), 'icon' => 'calendar-days', 'badge' => $next10DaysTasks->count() + $overdueTasks->count()],
+        'later' => ['label' => __('Later'), 'icon' => 'arrow-right-circle', 'badge' => $laterTasks->count()],
         'someday' => ['label' => __('Someday'), 'icon' => 'sparkles', 'badge' => $somedayTasks->count()],
-        'countdowns' => ['label' => __('Countdowns'), 'icon' => 'cake', 'badge' => $countdowns->count()],
+        'countdowns' => ['label' => __('Countdowns'), 'icon' => 'flag', 'badge' => $countdowns->count()],
     ]">
         <x-slot:next10Days>
             <div class="flex flex-col">
-                @foreach ($overdueTasks as $task)
-                    <x-task-row :task="$task"/>
-                @endforeach
+                @if ($overdueTasks->isNotEmpty())
+                    <flux:text size="sm" class="text-red-400 dark:text-red-500 mt-2 mb-2 px-2">{{ __('Overdue') }}</flux:text>
+                    @foreach ($overdueTasks as $task)
+                        <x-task-row :task="$task"/>
+                    @endforeach
+                @endif
 
-                @foreach ($next10DaysTasks as $task)
-                    <x-task-row :task="$task"/>
+                @foreach ($next10DaysGrouped as $dateLabel => $tasks)
+                    <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500 mt-4 mb-2 px-2">{{ $dateLabel }}</flux:text>
+                    @foreach ($tasks as $task)
+                        <x-task-row :task="$task"/>
+                    @endforeach
                 @endforeach
 
                 @if ($overdueTasks->isEmpty() && $next10DaysTasks->isEmpty())
@@ -113,6 +128,9 @@ class extends Component {
 
         <x-slot:later>
             <div class="flex flex-col">
+                @if ($laterTasks->isNotEmpty())
+                    <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500 mt-2 mb-2 px-2">{{ __('Later') }}</flux:text>
+                @endif
                 @forelse ($laterTasks as $task)
                     <x-task-row :task="$task"/>
                 @empty
@@ -127,6 +145,9 @@ class extends Component {
 
         <x-slot:someday>
             <div class="flex flex-col">
+                @if ($somedayTasks->isNotEmpty())
+                    <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500 mt-2 mb-2 px-2">{{ __('Someday') }}</flux:text>
+                @endif
                 @forelse ($somedayTasks as $task)
                     <x-task-row :task="$task"/>
                 @empty
@@ -141,6 +162,9 @@ class extends Component {
 
         <x-slot:countdowns>
             <div class="flex flex-col">
+                @if ($countdowns->isNotEmpty())
+                    <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500 mt-2 mb-2 px-2">{{ __('Countdowns') }}</flux:text>
+                @endif
                 @foreach ($countdowns as $task)
                     <x-task-row :task="$task"/>
                 @endforeach
