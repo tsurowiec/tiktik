@@ -43,27 +43,16 @@ new #[Title('Edit Task')] class extends Component {
         return redirect()->route('tasks.show', $this->task);
     }
 }; ?>
-<div class="w-full max-w-2xl mx-auto pt-6 flex flex-col flex-1 min-h-0 overflow-hidden">
-    <div class="flex-shrink-0 px-4 md:px-8">
-        <flux:heading size="xl" class="mb-6">{{ __('Edit Task') }}</flux:heading>
-    </div>
+<x-page-container>
+    <x-page-header>
+        <flux:heading size="xl">{{ __('Edit Task') }}</flux:heading>
+    </x-page-header>
 
-    <div class="flex-1 overflow-y-auto min-h-0 px-4 md:px-8 pb-8">
+    <x-page-content>
         <form wire:submit="save" class="space-y-6">
             <flux:input wire:model="title" :label="__('Title')" placeholder="{{ __('Task title...') }}" required />
 
-            <div wire:ignore x-data="{
-                init() {
-                    flatpickr(this.$el.querySelector('input'), {
-                        dateFormat: 'Y-m-d',
-                        defaultDate: $wire.due_date || '',
-                        disableMobile: true,
-                        onChange: (dates, str) => { $wire.due_date = str }
-                    });
-                }
-            }">
-                <flux:input wire:model="due_date" type="text" :label="__('Due Date')" placeholder="yyyy-mm-dd" />
-            </div>
+            <x-date-picker model="due_date" :label="__('Due Date')" />
 
             <flux:input wire:model="link" :label="__('Link')" placeholder="https://..." type="url" />
 
@@ -74,5 +63,5 @@ new #[Title('Edit Task')] class extends Component {
                 <flux:button variant="subtle" :href="route('tasks.show', $task)" wire:navigate>{{ __('Cancel') }}</flux:button>
             </div>
         </form>
-    </div>
-</div>
+    </x-page-content>
+</x-page-container>

@@ -35,6 +35,11 @@ class extends Component {
         $next10DaysGrouped = $next10DaysItems->groupBy(function ($task) use ($today) {
             if ($task->due_date->isSameDay($today)) return 'Today';
             if ($task->due_date->isSameDay($today->copy()->addDay())) return 'Tomorrow';
+            if ($task->due_date->isSameDay($today->copy()->addDays(2))) return $task->due_date->format('l');
+            if ($task->due_date->isSameDay($today->copy()->addDays(3))) return $task->due_date->format('l');
+            if ($task->due_date->isSameDay($today->copy()->addDays(4))) return $task->due_date->format('l');
+            if ($task->due_date->isSameDay($today->copy()->addDays(5))) return $task->due_date->format('l');
+            if ($task->due_date->isSameDay($today->copy()->addDays(6))) return $task->due_date->format('l');
             return $task->due_date->format('j M');
         });
 
@@ -71,7 +76,7 @@ class extends Component {
     }
 }; ?>
 
-<div class="w-full max-w-2xl mx-auto px-4 md:px-8 pt-6 flex flex-col flex-1 min-h-0 overflow-hidden">
+<x-page-container class="px-4 md:px-8">
     <div class="flex justify-between mb-8">
         <flux:button :href="route('tasks.create')" variant="primary" icon="plus" class="px-16 py-6 text-lg"
                      wire:navigate>
@@ -92,32 +97,28 @@ class extends Component {
         <x-slot:next10Days>
             <div class="flex flex-col">
                 @if ($overdueTasks->isNotEmpty())
-                    <flux:text size="sm" class="text-red-400 dark:text-red-500 mt-2 mb-2 px-2">{{ __('Overdue') }}</flux:text>
+                    <x-section-label variant="danger">{{ __('Overdue') }}</x-section-label>
                     @foreach ($overdueTasks as $task)
                         <x-task-row :task="$task"/>
                     @endforeach
                 @endif
 
                 @foreach ($next10DaysGrouped as $dateLabel => $tasks)
-                    <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500 mt-4 mb-2 px-2">{{ $dateLabel }}</flux:text>
+                    <x-section-label>{{ $dateLabel }}</x-section-label>
                     @foreach ($tasks as $task)
                         <x-task-row :task="$task"/>
                     @endforeach
                 @endforeach
 
                 @if ($overdueTasks->isEmpty() && $next10DaysTasks->isEmpty())
-                    <div class="p-8 text-center border border-dashed rounded-xl border-zinc-200 dark:border-zinc-700">
-                        <flux:text color="sky"
-                                   class="mb-2">{{ __('No tasks in coming 10 days.') }}</flux:text>
-                        <flux:button variant="subtle" size="sm" :href="route('tasks.create')"
-                                     wire:navigate>{{ __('Create one now') }}</flux:button>
-                    </div>
+                    <x-empty-state :create-route="route('tasks.create')">
+                        {{ __('No tasks in coming 10 days.') }}
+                    </x-empty-state>
                 @endif
 
                 @if ($completedTasks->isNotEmpty())
                     <div class="mt-6">
-                        <flux:text size="sm"
-                                   class="text-zinc-400 dark:text-zinc-500 mb-2 px-2">{{ __('Completed') }}</flux:text>
+                        <x-section-label>{{ __('Completed') }}</x-section-label>
                         @foreach ($completedTasks as $task)
                             <x-task-row :task="$task"/>
                         @endforeach
@@ -129,16 +130,14 @@ class extends Component {
         <x-slot:later>
             <div class="flex flex-col">
                 @if ($laterTasks->isNotEmpty())
-                    <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500 mt-2 mb-2 px-2">{{ __('Later') }}</flux:text>
+                    <x-section-label>{{ __('Later') }}</x-section-label>
                 @endif
                 @forelse ($laterTasks as $task)
                     <x-task-row :task="$task"/>
                 @empty
-                    <div class="p-8 text-center border border-dashed rounded-xl border-zinc-200 dark:border-zinc-700">
-                        <flux:text color="sky" class="mb-2">{{ __('No tasks scheduled for later.') }}</flux:text>
-                        <flux:button variant="subtle" size="sm" :href="route('tasks.create')"
-                                     wire:navigate>{{ __('Create one now') }}</flux:button>
-                    </div>
+                    <x-empty-state :create-route="route('tasks.create')">
+                        {{ __('No tasks scheduled for later.') }}
+                    </x-empty-state>
                 @endforelse
             </div>
         </x-slot:later>
@@ -146,16 +145,14 @@ class extends Component {
         <x-slot:someday>
             <div class="flex flex-col">
                 @if ($somedayTasks->isNotEmpty())
-                    <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500 mt-2 mb-2 px-2">{{ __('Someday') }}</flux:text>
+                    <x-section-label>{{ __('Someday') }}</x-section-label>
                 @endif
                 @forelse ($somedayTasks as $task)
                     <x-task-row :task="$task"/>
                 @empty
-                    <div class="p-8 text-center border border-dashed rounded-xl border-zinc-200 dark:border-zinc-700">
-                        <flux:text color="sky" class="mb-2">{{ __('No tasks in your Someday list.') }}</flux:text>
-                        <flux:button variant="subtle" size="sm" :href="route('tasks.create')"
-                                     wire:navigate>{{ __('Create one now') }}</flux:button>
-                    </div>
+                    <x-empty-state :create-route="route('tasks.create')">
+                        {{ __('No tasks in your Someday list.') }}
+                    </x-empty-state>
                 @endforelse
             </div>
         </x-slot:someday>
@@ -163,20 +160,18 @@ class extends Component {
         <x-slot:countdowns>
             <div class="flex flex-col">
                 @if ($countdowns->isNotEmpty())
-                    <flux:text size="sm" class="text-zinc-400 dark:text-zinc-500 mt-2 mb-2 px-2">{{ __('Countdowns') }}</flux:text>
+                    <x-section-label>{{ __('Countdowns') }}</x-section-label>
                 @endif
                 @foreach ($countdowns as $task)
                     <x-task-row :task="$task"/>
                 @endforeach
 
                 @if ($countdowns->isEmpty())
-                    <div class="p-8 text-center border border-dashed rounded-xl border-zinc-200 dark:border-zinc-700">
-                        <flux:text color="sky" class="mb-2">{{ __('No countdowns') }}</flux:text>
-                        <flux:button variant="subtle" size="sm" :href="route('countdowns.create')"
-                                     wire:navigate>{{ __('Create one now') }}</flux:button>
-                    </div>
+                    <x-empty-state :create-route="route('countdowns.create')">
+                        {{ __('No countdowns') }}
+                    </x-empty-state>
                 @endif
             </div>
         </x-slot:countdowns>
     </x-tabs>
-</div>
+</x-page-container>
