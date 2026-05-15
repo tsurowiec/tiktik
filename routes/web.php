@@ -19,5 +19,5 @@ Route::middleware([
     Route::livewire('countdowns/{task}/edit', 'pages::countdowns.edit')->name('countdowns.edit');
 });
 
-require __DIR__ . '/settings.php';
-require __DIR__ . '/auth.php';
+require __DIR__.'/settings.php';
+require __DIR__.'/auth.php';

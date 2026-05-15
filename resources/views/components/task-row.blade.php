@@ -34,7 +34,7 @@
     </div>
 @elseif ($task->completed)
     <div wire:key="completed-{{ $task->id }}" class="flex items-center gap-3 p-2 rounded-lg opacity-50">
-        <flux:checkbox checked wire:click="revertTask({{ $task->id }})"/>
+        <flux:checkbox checked wire:click="revertTask({{ $task->id }})" x-on:click="playSound(false)"/>
         <div class="flex-1 min-w-0">
             <flux:text class="line-through">
                 <a href="{{ route('tasks.show', $task) }}" wire:navigate class="no-underline text-inherit">{{ $task->shortTitle() }}</a>
@@ -58,7 +58,7 @@
     <div wire:key="pending-{{ $task->id }}"
          class="group flex items-center justify-between gap-3 p-2 rounded-lg transition-colors {{ $overdue ? 'hover:bg-red-50 dark:hover:bg-red-900/20' : 'hover:bg-indigo-100 dark:hover:bg-zinc-800/50' }}">
         <div class="flex items-center gap-3 flex-1 min-w-0">
-            <flux:checkbox wire:click="completeTask({{ $task->id }})"/>
+            <flux:checkbox wire:click="completeTask({{ $task->id }})" x-on:click="playSound(true)"/>
             <div class="flex-1 min-w-0">
                 <flux:text class="{{ $overdue ? 'text-red-600 dark:text-red-400' : 'text-zinc-900' }}">
                     <a href="{{ route('tasks.show', $task) }}" wire:navigate class="no-underline text-inherit">{{ $task->shortTitle() }}</a>

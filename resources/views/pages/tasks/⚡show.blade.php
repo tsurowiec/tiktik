@@ -49,6 +49,7 @@ class extends Component {
                 <flux:checkbox
                     :checked="$task->completed"
                     wire:click="{{ $task->completed ? 'revertTask' : 'completeTask' }}"
+                    x-on:click="{{ $task->completed ? 'playSound(false)' : 'playSound(true)' }}"
                 />
                 <div class="flex-1">
                     <div class="text-xl font-bold {{ $task->completed ? 'line-through opacity-50 text-zinc-500' : 'text-zinc-900 dark:text-zinc-100' }}">
