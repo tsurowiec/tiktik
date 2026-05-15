@@ -23,7 +23,7 @@ class extends Component {
     {
         $user = Auth::user();
         $today = now()->startOfDay();
-        $in2Weeks = now()->addDays(13)->endOfDay();
+        $in10Days = now()->addDays(9)->endOfDay();
 
         return [
             'overdueTasks' => $user->tasks()
@@ -31,20 +31,15 @@ class extends Component {
                 ->where('due_date', '<', $today)
                 ->orderBy('due_date')
                 ->get(),
-            'todayTasks' => $user->tasks()
-                ->where('completed', false)
-                ->whereDate('due_date', $today)
-                ->orderBy('due_date')
-                ->get(),
-            'fortnightTasks' => $user->tasks()
+            'next10DaysTasks' => $user->tasks()
                 ->where('completed', false)
                 ->where('due_date', '>=', $today)
-                ->where('due_date', '<=', $in2Weeks)
+                ->where('due_date', '<=', $in10Days)
                 ->orderBy('due_date')
                 ->get(),
             'laterTasks' => $user->tasks()
                 ->where('completed', false)
-                ->where('due_date', '>', $in2Weeks)
+                ->where('due_date', '>', $in10Days)
                 ->orderBy('due_date')
                 ->get(),
             'somedayTasks' => $user->tasks()
@@ -52,100 +47,69 @@ class extends Component {
                 ->whereNull('due_date')
                 ->orderBy('id')
                 ->get(),
-            'completedTodayTasks' => $user->tasks()
+            'completedTasks' => $user->tasks()
                 ->where('completed', true)
                 ->whereDate('completed_date', $today)
                 ->orderBy('due_date')
                 ->get(),
-            'completedFortnightTasks' => $user->tasks()
-                ->where('completed', true)
-                ->where('completed_date', '>=', $today)
-                ->where('completed_date', '<=', $in2Weeks)
+            'countdowns' => $user->tasks()
+                ->where('countdown', true)
+                ->where('due_date', '>=', $today)
                 ->orderBy('due_date')
-                ->get(),
-            'completedLaterTasks' => $user->tasks()
-                ->where('completed', true)
-                ->where('completed_date', '>', $in2Weeks)
-                ->orderBy('due_date')
+                ->take(30)
                 ->get(),
         ];
     }
 }; ?>
 
 <div class="w-full max-w-2xl mx-auto px-4 md:px-8 pt-6 flex flex-col flex-1 min-h-0 overflow-hidden">
-    <div class="flex justify-start mb-8 flex-shrink-0">
-        <flux:button :href="route('tasks.create')" variant="primary" icon="plus" class="px-8 py-6 text-lg"
+    <div class="flex justify-between mb-8">
+        <flux:button :href="route('tasks.create')" variant="primary" icon="plus" class="px-16 py-6 text-lg"
                      wire:navigate>
-            {{ __('Add a task') }}
+            {{ __('Add task') }}
+        </flux:button>
+        <flux:button :href="route('countdowns.create')" variant="primary" icon="plus" class="px-16 py-6 text-lg"
+                     wire:navigate>
+            {{ __('Add countdown') }}
         </flux:button>
     </div>
 
-    <x-tabs active="fortnight" class="flex-1 min-h-0" :tabs="[
-        'today' => ['label' => __('Today'), 'icon' => 'sun', 'badge' => $todayTasks->count() + $overdueTasks->count(), 'overdue' => (bool) $overdueTasks->count()],
-        'fortnight' => ['label' => __('Fortnight'), 'icon' => 'calendar-days', 'badge' => $fortnightTasks->count() + $overdueTasks->count()],
+    <x-tabs active="next10Days" class="flex-1 min-h-0" :tabs="[
+        'next10Days' => ['label' => __('Next10Days'), 'icon' => 'calendar-days', 'badge' => $next10DaysTasks->count() + $overdueTasks->count()],
         'later' => ['label' => __('Later'), 'icon' => 'clock', 'badge' => $laterTasks->count()],
         'someday' => ['label' => __('Someday'), 'icon' => 'sparkles', 'badge' => $somedayTasks->count()],
+        'countdowns' => ['label' => __('Countdowns'), 'icon' => 'cake', 'badge' => $countdowns->count()],
     ]">
-        <x-slot:today>
+        <x-slot:next10Days>
             <div class="flex flex-col">
                 @foreach ($overdueTasks as $task)
                     <x-task-row :task="$task"/>
                 @endforeach
 
-                @foreach ($todayTasks as $task)
+                @foreach ($next10DaysTasks as $task)
                     <x-task-row :task="$task"/>
                 @endforeach
 
-                @if ($overdueTasks->isEmpty() && $todayTasks->isEmpty())
-                    <div class="p-8 text-center border border-dashed rounded-xl border-zinc-200 dark:border-zinc-700">
-                        <flux:text color="sky" class="mb-2">{{ __('No tasks for today!') }}</flux:text>
-                        <flux:button variant="subtle" size="sm" :href="route('tasks.create')"
-                                     wire:navigate>{{ __('Create one now') }}</flux:button>
-                    </div>
-                @endif
-
-                @if ($completedTodayTasks->isNotEmpty())
-                    <div class="mt-6">
-                        <flux:text size="sm"
-                                   class="text-zinc-400 dark:text-zinc-500 py-4 px-2">{{ __('Completed') }}</flux:text>
-                        @foreach ($completedTodayTasks as $task)
-                            <x-task-row :task="$task"/>
-                        @endforeach
-                    </div>
-                @endif
-            </div>
-        </x-slot:today>
-
-        <x-slot:fortnight>
-            <div class="flex flex-col">
-                @foreach ($overdueTasks as $task)
-                    <x-task-row :task="$task"/>
-                @endforeach
-
-                @foreach ($fortnightTasks as $task)
-                    <x-task-row :task="$task"/>
-                @endforeach
-
-                @if ($overdueTasks->isEmpty() && $fortnightTasks->isEmpty())
+                @if ($overdueTasks->isEmpty() && $next10DaysTasks->isEmpty())
                     <div class="p-8 text-center border border-dashed rounded-xl border-zinc-200 dark:border-zinc-700">
                         <flux:text color="sky"
-                                   class="mb-2">{{ __('Nothing scheduled for the next 14 days.') }}</flux:text>
+                                   class="mb-2">{{ __('No tasks in coming 10 days.') }}</flux:text>
                         <flux:button variant="subtle" size="sm" :href="route('tasks.create')"
                                      wire:navigate>{{ __('Create one now') }}</flux:button>
                     </div>
                 @endif
 
-                @if ($completedFortnightTasks->isNotEmpty())
+                @if ($completedTasks->isNotEmpty())
                     <div class="mt-6">
                         <flux:text size="sm"
                                    class="text-zinc-400 dark:text-zinc-500 mb-2 px-2">{{ __('Completed') }}</flux:text>
-                        @foreach ($completedFortnightTasks as $task)
+                        @foreach ($completedTasks as $task)
                             <x-task-row :task="$task"/>
                         @endforeach
                     </div>
                 @endif
             </div>
-        </x-slot:fortnight>
+        </x-slot:next10Days>
 
         <x-slot:later>
             <div class="flex flex-col">
@@ -158,16 +122,6 @@ class extends Component {
                                      wire:navigate>{{ __('Create one now') }}</flux:button>
                     </div>
                 @endforelse
-
-                @if ($completedLaterTasks->isNotEmpty())
-                    <div class="mt-6">
-                        <flux:text size="sm"
-                                   class="text-zinc-400 dark:text-zinc-500 m-2 px-2">{{ __('Completed') }}</flux:text>
-                        @foreach ($completedLaterTasks as $task)
-                            <x-task-row :task="$task"/>
-                        @endforeach
-                    </div>
-                @endif
             </div>
         </x-slot:later>
 
@@ -184,5 +138,21 @@ class extends Component {
                 @endforelse
             </div>
         </x-slot:someday>
+
+        <x-slot:countdowns>
+            <div class="flex flex-col">
+                @foreach ($countdowns as $task)
+                    <x-task-row :task="$task"/>
+                @endforeach
+
+                @if ($countdowns->isEmpty())
+                    <div class="p-8 text-center border border-dashed rounded-xl border-zinc-200 dark:border-zinc-700">
+                        <flux:text color="sky" class="mb-2">{{ __('No countdowns') }}</flux:text>
+                        <flux:button variant="subtle" size="sm" :href="route('countdowns.create')"
+                                     wire:navigate>{{ __('Create one now') }}</flux:button>
+                    </div>
+                @endif
+            </div>
+        </x-slot:countdowns>
     </x-tabs>
 </div>

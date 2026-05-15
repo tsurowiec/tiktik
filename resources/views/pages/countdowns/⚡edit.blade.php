@@ -48,7 +48,7 @@ new #[Title('Edit Countdown')] class extends Component {
             'icon' => $this->icon,
         ]);
 
-        return redirect()->route('countdowns.show', $this->task);
+        return redirect()->route('tasks');
     }
 }; ?>
 

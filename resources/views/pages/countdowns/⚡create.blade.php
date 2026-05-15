@@ -34,7 +34,7 @@ new #[Title('Create Countdown')] class extends Component {
             'icon' => $this->icon,
         ]);
 
-        return redirect()->route('countdowns');
+        return redirect()->route('tasks');
     }
 }; ?>
 <div class="w-full max-w-2xl mx-auto pt-6 flex flex-col flex-1 min-h-0 overflow-hidden">

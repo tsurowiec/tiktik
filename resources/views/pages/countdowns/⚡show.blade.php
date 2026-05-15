@@ -19,7 +19,7 @@ class extends Component {
     {
         $this->task->delete();
 
-        return redirect()->route('countdowns');
+        return redirect()->route('tasks');
     }
 }; ?>
 
@@ -84,7 +84,7 @@ class extends Component {
         </div>
 
         <div class="mt-8 flex items-center gap-4">
-            <flux:button variant="filled" :href="route('countdowns')" wire:navigate>{{ __('Back to Countdowns') }}</flux:button>
+            <flux:button variant="filled" :href="route('tasks')" wire:navigate>{{ __('Back to Tasks') }}</flux:button>
         </div>
     </div>
 

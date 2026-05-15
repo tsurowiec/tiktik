@@ -15,7 +15,7 @@ new #[Title('Create Task')] class extends Component {
     {
         $this->validate([
             'title' => ['required', 'string', 'min:5'],
-            'due_date' => ['nullable', 'date', 'after_or_equal:today'],
+            'due_date' => ['nullable', 'date'],
             'link' => ['nullable', 'url'],
             'description' => ['nullable', 'string'],
         ]);
