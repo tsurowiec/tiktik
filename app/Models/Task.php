@@ -95,11 +95,16 @@ class Task extends Model
     public function shortTitle(): string
     {
         $expression = $this->parseEveryExpression();
-        if ($expression === null) {
-            return $this->title;
+        $title = $expression === null
+            ? $this->title
+            : trim(str_replace($expression['expression'], '', $this->title));
+
+        if ($this->countdown && $this->original_due_date && $this->due_date) {
+            $years = $this->original_due_date->diffInYears($this->due_date);
+            $title .= " ({$years})";
         }
 
-        return trim(str_replace($expression['expression'], '', $this->title));
+        return $title;
     }
 
     public function recurring(): bool
@@ -125,7 +130,11 @@ class Task extends Model
     {
         $diff = (int) floor(Carbon::now()->startOfDay()->diffInDays($this->due_date));
 
-        return sprintf('in %d day%s', $diff, $diff === 1 ? '' : 's');
+        return match ($diff) {
+            0 => 'Today',
+            1 => 'Tomorrow',
+            default => sprintf('in %d days', $diff),
+        };
     }
 
     public function countdownColor(): string
