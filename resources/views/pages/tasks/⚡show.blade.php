@@ -61,35 +61,31 @@ class extends Component {
             <div class="space-y-4">
                 @if ($task->due_date)
                     <x-detail-card :label="__('Due date')">
-                        <flux:text class="text-zinc-900 dark:text-zinc-100 font-medium">{{ $task->due_date->format('j F Y') }}</flux:text>
+                        {{ $task->due_date->format('j F Y') }}
                     </x-detail-card>
                 @endif
 
                 @if ($task->recurring())
                     <x-detail-card :label="__('Repeat')">
-                        <flux:text class="text-zinc-900 dark:text-zinc-100 font-medium">{{ $task->repeatPhrase() }}</flux:text>
+                        {{ $task->repeatPhrase() }}
                     </x-detail-card>
                 @endif
 
                 @if ($task->link)
-                    <x-detail-card :label="__('Link')">
-                        <a href="{{ $task->link }}" target="_blank" rel="noopener noreferrer"
-                           class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 break-all flex items-center gap-1 font-medium">
-                            {{ $task->link }}
-                            <flux:icon name="arrow-top-right-on-square" class="size-3" />
-                        </a>
+                    <x-detail-card :label="__('Link')" link>
+                        {{ $task->link }}
                     </x-detail-card>
                 @endif
 
                 @if ($task->description)
                     <x-detail-card :label="__('Description')">
-                        <flux:text class="whitespace-pre-wrap text-zinc-900 dark:text-zinc-100">{{ $task->description }}</flux:text>
+                        {{ $task->description }}
                     </x-detail-card>
                 @endif
 
                 @if ($task->completed && $task->completed_date)
                     <x-detail-card :label="__('Completed on')">
-                        <flux:text class="text-zinc-900 dark:text-zinc-100 font-medium">{{ $task->completed_date->format('j F Y') }}</flux:text>
+                        {{ $task->completed_date->format('j F Y') }}
                     </x-detail-card>
                 @endif
             </div>

@@ -72,6 +72,12 @@ class extends Component {
                 </x-detail-card>
             @endif
 
+            @if ($task->recurring())
+                <x-detail-card :label="__('Repeats')">
+                    <flux:text class="text-zinc-900 dark:text-zinc-100 font-medium">{{ $task->repeatPhrase() }}</flux:text>
+                </x-detail-card>
+            @endif
+
             @if ($task->description)
                 <x-detail-card :label="__('Description')">
                     <flux:text class="whitespace-pre-wrap text-zinc-900 dark:text-zinc-100">{{ $task->description }}</flux:text>
