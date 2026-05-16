@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Models\Task;
-use DateInterval;
 use Illuminate\Console\Command;
 use Symfony\Component\Console\Attribute\AsCommand;
 
@@ -19,14 +18,9 @@ class AdvanceCountdowns extends Command
             ->filter(fn (Task $task) => $task->recurring());
 
         foreach ($countdowns as $countdown) {
-            $next = $countdown->replicate();
-            $expression = $this->parseExpression($countdown->title);
-            $next->due_date = $countdown->due_date->add(new DateInterval(substr($expression, 1)));
-            $next->iteration++;
-            $next->parent_task_id = $countdown->id;
-            $next->save();
+            $next = $countdown->complete();
 
-            $this->line("Advanced: {$countdown->shortTitle()} → {$next->due_date->toDateString()}");
+            $this->line("Advanced: {$countdown->shortTitle()} to {$next->due_date->toDateString()}");
         }
 
         $this->info("Done. Advanced {$countdowns->count()} countdown(s).");

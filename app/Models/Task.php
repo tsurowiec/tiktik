@@ -69,20 +69,30 @@ class Task extends Model
         return $this->next()->exists();
     }
 
-    public function complete(): void
+    public function complete(): ?Task
     {
-        if ($this->recurring() && ! $this->hasNext()) {
-            $next = $this->replicate();
-            $expression = $this->parseEveryExpression();
-            $next->original_due_date = $next->due_date = $this->original_due_date
-                ->add(new DateInterval(substr($expression['expression'], 1)));
-            $next->iteration = $this->iteration + 1;
-            $next->parent_task_id = $this->id;
-            $next->save();
-        }
+        $next = $this->replicate();
         $this->completed = true;
         $this->completed_date = now();
         $this->save();
+
+        if ($this->recurring() && ! $this->hasNext()) {
+            $expression = $this->parseEveryExpression();
+            $interval = new DateInterval(substr($expression['expression'], 1));
+            if ($this->countdown) {
+                $next->due_date = $this->due_date->add($interval);
+                $next->original_due_date = $this->original_due_date;
+            } else {
+                $next->original_due_date = $next->due_date = $this->original_due_date->add($interval);
+            }
+            $next->iteration = $this->iteration + 1;
+            $next->parent_task_id = $this->id;
+            $next->save();
+
+            return $next;
+        }
+
+        return null;
     }
 
     public function revert(): void
