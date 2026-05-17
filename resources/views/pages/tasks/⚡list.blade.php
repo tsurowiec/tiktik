@@ -63,6 +63,7 @@ class extends Component {
                 ->get(),
             'completedTasks' => $user->tasks()
                 ->where('completed', true)
+                ->where('countdown', false)
                 ->whereDate('completed_date', $today)
                 ->orderBy('due_date')
                 ->get(),
