@@ -18,8 +18,12 @@ class AdvanceCountdowns extends Command
 
         foreach ($countdowns as $countdown) {
             $next = $countdown->complete();
+            if ($next) {
+                $this->line("Advanced: {$countdown->shortTitle()} to {$next->due_date->toDateString()}");
+            } else {
+                $this->line("Completed: {$countdown->shortTitle()}");
+            }
 
-            $this->line("Advanced: {$countdown->shortTitle()} to {$next->due_date->toDateString()}");
         }
 
         $this->info("Done. Advanced {$countdowns->count()} countdown(s).");
