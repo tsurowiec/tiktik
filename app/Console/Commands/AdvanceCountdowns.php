@@ -14,8 +14,7 @@ class AdvanceCountdowns extends Command
         $countdowns = Task::where('countdown', true)
             ->where('due_date', '<', today())
             ->whereDoesntHave('next')
-            ->get()
-            ->filter(fn (Task $task) => $task->recurring());
+            ->get();
 
         foreach ($countdowns as $countdown) {
             $next = $countdown->complete();
